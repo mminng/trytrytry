@@ -6,9 +6,9 @@ import com.google.gson.annotations.SerializedName
  * Created by zh on 2021/8/17.
  */
 data class GeeksResponse(
-    var showProgress: Boolean = false,
-    var showError: String? = "",
-    @field:SerializedName("issueList") var geeksList: List<GeeksModel>? = null
+    val showProgress: Boolean = false,
+    val showError: String = "",
+    @field:SerializedName("issueList") val geeksList: List<GeeksModel> = emptyList()
 )
 
 data class GeeksModel(

@@ -25,19 +25,17 @@ class GeeksViewModel : ViewModel() {
         viewModelScope.launch {
             val map: Map<String, String> =
                 mapOf("date" to date.toString(), "num" to number.toString())
-            val uiState = GeeksResponse(true)
-            _data.value = uiState
+            _data.value = GeeksResponse(true)
             delay(3 * 1000)
-            when (val result: Result<GeeksResponse> = enqueue { login(map) }) {
+
+            when (val result = enqueue { login(map) }) {
                 is Result.Response -> {
-                    uiState.showProgress = false
-                    uiState.geeksList = result.response.geeksList
-                    _data.value = uiState
+                    _data.value = GeeksResponse(geeksList = result.response.geeksList)
                 }
                 is Result.Failure -> {
-                    uiState.showProgress = false
-                    uiState.showError = result.exception.message
-                    _data.value = uiState
+                    result.exception.message?.let {
+                        _data.value = GeeksResponse(showError = it)
+                    }
                 }
             }
         }

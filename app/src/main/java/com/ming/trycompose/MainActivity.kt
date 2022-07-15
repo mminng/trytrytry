@@ -9,6 +9,7 @@ import androidx.activity.viewModels
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import com.ming.trycompose.databinding.ActivityMainBinding
 import com.ming.trycompose.ui.theme.TryComposeTheme
@@ -20,6 +21,8 @@ class MainActivity : ComponentActivity() {
     }
 
     private val model: GeeksViewModel by viewModels()
+
+    private val range: IntRange = 1..10
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,16 +40,15 @@ class MainActivity : ComponentActivity() {
                 binding.progressBar.visibility = View.VISIBLE
             } else {
                 binding.progressBar.visibility = View.INVISIBLE
-                var errorMessage = ""
-                response.showError?.let {
-                    errorMessage = it
-                }
+                val errorMessage = response.showError
                 if (errorMessage.isEmpty()) {
-                    response.geeksList?.let {
-                        binding.message.text = it[0].bannerList[1].data.cover.feed
-                    }
+                    val randomPage: Int = range.random()
+                    Glide.with(this)
+                        .load(response.geeksList[0].bannerList[randomPage].data.cover.feed)
+                        .into(binding.content)
+                    Snackbar.make(binding.content, "第${randomPage}张", Snackbar.LENGTH_SHORT).show()
                 } else {
-                    binding.message.text = errorMessage
+                    Snackbar.make(binding.content, errorMessage, Snackbar.LENGTH_SHORT).show()
                 }
             }
         }
