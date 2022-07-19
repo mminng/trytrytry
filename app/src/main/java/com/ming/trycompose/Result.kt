@@ -1,20 +1,12 @@
 package com.ming.trycompose
 
-/**
- * Created by zh on 2022/7/14.
- */
-sealed class Result<out T : Any> {
+import java.lang.Exception
 
-    data class Response<out T : Any>(val response: T) : Result<T>()
+/**
+ * Created by zh on 2022/6/28.
+ */
+sealed class Result<out R> {
+    object Loading : Result<Nothing>()
+    data class Success<out R>(val data: R) : Result<R>()
     data class Failure(val exception: Exception) : Result<Nothing>()
 }
-
-suspend fun <T : Any> enqueue(response: suspend () -> Result<T>): Result<T> {
-    return try {
-        response()
-    } catch (e: Exception) {
-        Result.Failure(e)
-    }
-}
-
-class ServiceException(message: String) : Exception(message)

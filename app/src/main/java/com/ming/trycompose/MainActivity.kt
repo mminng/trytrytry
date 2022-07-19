@@ -35,23 +35,29 @@ class MainActivity : ComponentActivity() {
 //            }
 //        }
         setContentView(binding.root)
-        model.data.observe(this) { response ->
-            if (response.showProgress) {
-                binding.progressBar.visibility = View.VISIBLE
-            } else {
-                binding.progressBar.visibility = View.INVISIBLE
-                val errorMessage = response.showError
-                if (errorMessage.isEmpty()) {
+        model.data.observe(this) {
+            when (it) {
+                is Result.Loading -> {
+                    binding.progressBar.visibility = View.VISIBLE
+                }
+                is Result.Success -> {
+                    binding.progressBar.visibility = View.INVISIBLE
                     val randomPage: Int = range.random()
                     Glide.with(this)
-                        .load(response.geeksList[0].bannerList[randomPage].data.cover.feed)
+                        .load(it.data.geeksList[0].bannerList[randomPage].data.cover.feed)
                         .into(binding.content)
                     Snackbar.make(binding.content, "第${randomPage}张", Snackbar.LENGTH_SHORT).show()
-                } else {
-                    Snackbar.make(binding.content, errorMessage, Snackbar.LENGTH_SHORT).show()
+                }
+                is Result.Failure -> {
+                    binding.progressBar.visibility = View.INVISIBLE
+                    it.exception.message?.let {
+                        Snackbar.make(binding.content, it, Snackbar.LENGTH_SHORT)
+                            .show()
+                    }
                 }
             }
         }
+
         binding.post.setOnClickListener {
             model.load(System.currentTimeMillis(), 1)
         }
