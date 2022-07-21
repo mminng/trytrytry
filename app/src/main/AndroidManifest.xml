@@ -13,7 +13,7 @@
         android:theme="@style/Theme.TryCompose"
         android:usesCleartextTraffic="true">
         <activity
-            android:name="com.ming.trycompose.mvi.CountActivity"
+            android:name="com.ming.trycompose.count.CountActivity"
             android:exported="true">
 
         </activity>

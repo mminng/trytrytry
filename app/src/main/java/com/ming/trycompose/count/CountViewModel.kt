@@ -1,4 +1,4 @@
-package com.ming.trycompose.mvi
+package com.ming.trycompose.count
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
