@@ -1,6 +1,7 @@
 package com.ming.trycompose
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
@@ -8,6 +9,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
@@ -38,47 +40,59 @@ class MainActivity : ComponentActivity() {
 //            }
 //        }
         setContentView(binding.root)
-//        model.data.observe(this) {
-//            when (it) {
-//                is Result.Loading -> {
-//                    binding.progressBar.visibility = View.VISIBLE
-//                }
-//                is Result.Success -> {
-//                    binding.progressBar.visibility = View.INVISIBLE
-//                    val randomPage: Int = range.random()
-//                    Glide.with(this)
-//                        .load(it.data.geeksList[0].bannerList[randomPage].data.cover.feed)
-//                        .into(binding.content)
-//                    Snackbar.make(binding.content, "第${randomPage}张", Snackbar.LENGTH_SHORT).show()
-//                }
-//                is Result.Failure -> {
-//                    binding.progressBar.visibility = View.INVISIBLE
-//                    it.exception.message?.let {
-//                        Snackbar.make(binding.content, it, Snackbar.LENGTH_SHORT)
-//                            .show()
-//                    }
-//                }
-//            }
-//        }
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                model.uiState.collect {
-                    if (it.isLoading) {
-                        binding.progressBar.visibility = View.VISIBLE
-                    } else {
-                        binding.progressBar.visibility = View.INVISIBLE
+                launch {
+                    model.result.collect {
+                        when (it) {
+                            is Result.Loading -> {
+                                binding.progressBar.visibility = View.VISIBLE
+                                Snackbar.make(
+                                    binding.content,
+                                    "Loading...",
+                                    Snackbar.LENGTH_SHORT
+                                ).show()
+                                Log.e("wtf", "Loading")
+                            }
+                            is Result.Success -> {
+                                binding.progressBar.visibility = View.INVISIBLE
+//                        val randomPage: Int = range.random()
+                                if (it.data.geeksList.isNotEmpty()) {
+//                                    Glide.with(this@MainActivity)
+//                                        .load(it.data.geeksList[0].bannerList[3].data.cover.feed)
+//                                        .into(binding.content)
+                                }
+//                                Snackbar.make(binding.content, "第${3}张", Snackbar.LENGTH_SHORT)
+//                                    .show()
+                                Log.e("wtf", "Success")
+                            }
+                            is Result.Failure -> {
+                                binding.progressBar.visibility = View.INVISIBLE
+//                        Snackbar.make(
+//                            binding.content,
+//                            "${it.exception.message}",
+//                            Snackbar.LENGTH_SHORT
+//                        ).show()
+                                Log.e("wtf", "${it.exception.message}")
+                            }
+                        }
                     }
-                    val randomPage: Int = range.random()
-                    if (it.data.geeksList.isNotEmpty()) {
+                }
+                launch {
+                    model.message.collect {
+                        Snackbar.make(
+                            binding.content,
+                            it,
+                            Snackbar.LENGTH_SHORT
+                        ).show()
                         Glide.with(this@MainActivity)
-                            .load(it.data.geeksList[0].bannerList[randomPage].data.cover.feed)
+                            .load(it)
                             .into(binding.content)
                     }
-                    Snackbar.make(binding.content, "第${randomPage}张", Snackbar.LENGTH_SHORT).show()
                 }
             }
-        }
 
+        }
 
         binding.post.setOnClickListener {
             model.load(System.currentTimeMillis(), 1)

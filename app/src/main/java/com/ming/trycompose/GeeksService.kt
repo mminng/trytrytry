@@ -23,7 +23,7 @@ interface GeeksService {
 
     @FormUrlEncoded
     @POST("v2/feed")
-    suspend fun login(@FieldMap map: Map<String, String>): Response<GeeksResponse>
+    suspend fun login(@FieldMap map: Map<String, @JvmSuppressWildcards Any>): Response<GeeksResponse>
 
     companion object {
         private const val BASE_URL = "http://baobab.kaiyanapp.com/api/"

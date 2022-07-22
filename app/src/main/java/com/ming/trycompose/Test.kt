@@ -10,9 +10,11 @@ import kotlinx.coroutines.flow.*
 suspend fun main() = runBlocking {
 
     val flow1: Flow<String> = flow {
+        println("emit hello")
         emit("hello")
+        println("emit hey")
         emit("hey")
-        throw RuntimeException("RuntimeException")
+        println("emit hi")
         emit("hi")
     }
 
@@ -48,12 +50,17 @@ suspend fun main() = runBlocking {
 //        }
 //    }
 
+    delay(2000)
     flow1.onCompletion { error ->
         if (error != null) println("error:${error}")
     }.catch { error ->
         println("catch:${error}")
     }.collect {
         println(it)
+    }
+    delay(4000)
+    flow1.collect {
+        println("then:$it")
     }
 }
 
