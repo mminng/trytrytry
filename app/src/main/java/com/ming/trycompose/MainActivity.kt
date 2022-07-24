@@ -41,56 +41,64 @@ class MainActivity : ComponentActivity() {
 //        }
         setContentView(binding.root)
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    model.result.collect {
-                        when (it) {
-                            is Result.Loading -> {
-                                binding.progressBar.visibility = View.VISIBLE
-                                Snackbar.make(
-                                    binding.content,
-                                    "Loading...",
-                                    Snackbar.LENGTH_SHORT
-                                ).show()
-                                Log.e("wtf", "Loading")
-                            }
-                            is Result.Success -> {
-                                binding.progressBar.visibility = View.INVISIBLE
-//                        val randomPage: Int = range.random()
-                                if (it.data.geeksList.isNotEmpty()) {
+            model.uiState.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect {
+                Log.e(
+                    "wtf",
+                    "collect loading=${it.isLoading},result,message=${it.message}"
+                )
+                if (it.isLoading) {
+                    binding.progressBar.visibility = View.VISIBLE
+                } else {
+                    binding.progressBar.visibility = View.INVISIBLE
+                }
+                if (it.result.isNotEmpty()) {
+                    Glide.with(this@MainActivity)
+                        .load(it.result[0].bannerList[range.random()].data.cover.feed)
+                        .into(binding.content)
+                }
+                it.message?.let { message ->
+                    if (message.isNotEmpty())
+                        Snackbar.make(
+                            binding.content,
+                            message,
+                            Snackbar.LENGTH_SHORT
+                        ).show()
+                }
+            }
+//            repeatOnLifecycle(Lifecycle.State.STARTED) {
+//                launch {
+//                    model.result.collect {
+//                        when (it) {
+//                            is Result.Loading -> {
+//                                binding.progressBar.visibility = View.VISIBLE
+//                                Log.e("wtf", "Loading")
+//                            }
+//                            is Result.Success -> {
+//                                binding.progressBar.visibility = View.INVISIBLE
+//                                if (it.data.geeksList.isNotEmpty()) {
 //                                    Glide.with(this@MainActivity)
 //                                        .load(it.data.geeksList[0].bannerList[3].data.cover.feed)
 //                                        .into(binding.content)
-                                }
-//                                Snackbar.make(binding.content, "第${3}张", Snackbar.LENGTH_SHORT)
-//                                    .show()
-                                Log.e("wtf", "Success")
-                            }
-                            is Result.Failure -> {
-                                binding.progressBar.visibility = View.INVISIBLE
+//                                }
+//                                Log.e("wtf", "Success")
+//                            }
+//                            is Result.Failure -> {
+//                                binding.progressBar.visibility = View.INVISIBLE
+//                                Log.e("wtf", "${it.exception.message}")
+//                            }
+//                        }
+//                    }
+//                }
+//                launch {
+//                    model.message.collect {
 //                        Snackbar.make(
 //                            binding.content,
-//                            "${it.exception.message}",
+//                            it,
 //                            Snackbar.LENGTH_SHORT
 //                        ).show()
-                                Log.e("wtf", "${it.exception.message}")
-                            }
-                        }
-                    }
-                }
-                launch {
-                    model.message.collect {
-                        Snackbar.make(
-                            binding.content,
-                            it,
-                            Snackbar.LENGTH_SHORT
-                        ).show()
-                        Glide.with(this@MainActivity)
-                            .load(it)
-                            .into(binding.content)
-                    }
-                }
-            }
+//                    }
+//                }
+//            }
 
         }
 
